@@ -1,0 +1,49 @@
+body {
+  font-family: '微軟正黑體';
+  background-color: #323761;
+  color: aliceblue;
+}
+
+a {
+  color: #00B7FF;
+}
+
+hr {
+  background-color: #64677A;
+}
+
+.btn-blue {
+  color: aliceblue;
+  background-color: #828EFA;
+}
+
+.btn-blue:hover {
+  color: aliceblue;
+  background-color: #6771C7;
+}
+
+.btn-outline-blue {
+  color: #828EFA;
+  border-color: #828EFA;;
+}
+
+.btn-outline-blue:hover {
+  background-color: #828EFA;
+}
+
+.node {
+  padding: 5px;
+  border-radius: 3px;
+  border: 1px solid aliceblue;
+}
+
+.timelineBlock {
+  float: left;
+  box-sizing: border-box;
+  width: 14.28%;
+  height: 100px;
+  display: inline;
+  background-color: #AD916C;
+  border: #323761 solid 2px;
+  border-radius: 10px;
+}

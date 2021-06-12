@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <% include ./models/bs_css.ejs %>
+  <link rel="stylesheet" href="/stylesheets/style.css">
+  <title>首頁</title>
+</head>
+
+<body>
+  <!-- Modal -->
+  <div class="modal fade text-dark" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLabel">說明</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <h6>依照以下步驟輸入參數，送出後可以查看 BOM 表和排程結果</h6>
+          <ol>
+            <li>要有幾個元件</li>
+            <li>每個元件的屬性</li>
+            <ul>
+              <li>由幾個、哪些元件組成，且各需要幾個</li>
+              <li>如果是基礎元件(不由其他元件組成)就都填 0 </li>
+              <li>原料足夠的話需要多久時間生產</li>
+            </ul>
+            <li>基礎元件一次最少訂幾個</li>
+            <li>交貨延遲時間</li>
+            <li>最終交貨時間(Deadline)</li>
+          </ol>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <main class="container text-center">
+    <h1 class="m-5">MRP Online Simulator</h1>
+    <div class="row">
+      <div class="m-auto col-md-8">
+        <div class="row">
+          <div class="col-md-6 m-auto">
+            <!-- Button trigger modal -->
+            <button type="button" class="btn btn-outline-warning w-100" data-bs-toggle="modal" data-bs-target="#exampleModal">
+              說明
+            </button>
+          </div>
+        </div>
+
+        <div class="row m-5">
+          <div id="formDiv" class="m-auto col-md-8">
+            <form action="/showData" method="get">
+
+              <div class="row">
+                <div class="m-auto col-md-12">
+                  <h4>元件資料</h4>
+                  <div class="input-group">
+                    <div class="input-group-prepend">
+                      <span class="input-group-text" id="">要有幾個元件</span>
+                    </div>
+                    <input type="text" class="form-control" name="q-of-element" id="q-of-element">
+                    <div class="input-group-append">
+                      <button class="btn btn-outline-blue" type="button" onclick="genInput()">確定</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <!-- 動態產生以下輸入 -->
+              <!-- 
+                - 每個元件的屬性
+                - 由哪些、幾個元件組成
+                - 原料足夠的話需要多久時間生產 -->
+              <hr>
+              <div id="subInput">
+
+              </div>
+              <hr>
+
+              <!-- 基礎元件一次最少訂幾個 -->
+              <div id="basicElement">
+
+              </div>
+              <hr>
+
+              <!-- 訂單需求 -->
+              <div class="row mt-2">
+                <div class="m-auto col-md-12">
+                  <div class="input-group">
+                    <div class="input-group-prepend">
+                      <span class="input-group-text" id="">預計交貨數量</span>
+                    </div>
+                    <input type="text" class="form-control" name="orderNum" id="orderNum">
+                  </div>
+                </div>
+              </div>
+              <!-- 最終交貨時間(Deadline) -->
+              <div class="row mt-2">
+                <div class="m-auto col-md-12">
+                  <div class="input-group">
+                    <div class="input-group-prepend">
+                      <span class="input-group-text" id="">最終交貨時間</span>
+                    </div>
+                    <input type="text" class="form-control" name="deadline" id="deadline" placeholder="第幾週 EX: 28">
+                  </div>
+                </div>
+              </div>
+              <div class="row mt-3">
+                <button class="btn btn-success w-100" type="button" onclick="prepareData()">送出</button>
+              </div>
+              <div class="row mt-3">
+                <a href="/" class="btn btn-danger w-100" type="button">重設</a>
+              </div>
+
+            </form>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </main>
+  <% include ./models/bs_js.ejs %>
+  <script src="/javascripts/index.js"></script>
+</body>
+
+</html>

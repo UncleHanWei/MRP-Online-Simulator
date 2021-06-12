@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <% include ./models/bs_css.ejs %>
+  <link rel="stylesheet" href="/treant-js/Treant.css">
+  <link rel="stylesheet" href="/stylesheets/style.css">
+  <title>結果</title>
+</head>
+
+<body>
+  <main class="container text-center">
+    <h1 class="m-5">MRP Online Simulator</h1>
+    <div class="row">
+      <div class="col-md-12 m-auto">
+        <h3 class="text-center">BOM 表</h3>
+        <div class="row">
+          <div id="bom">
+
+          </div>
+        </div>
+        <hr>
+        <div class="row mt-3">
+          <h3 class="text-center">排程</h3>
+          <div class="col-md-10 m-auto" id="schedule">
+          </div>
+        </div>
+        <div class="row m-5">
+          <div class="col-md-6 m-auto">
+            <a href="/" class="btn btn-success w-100">回首頁</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+  <% include ./models/bs_js.ejs %>
+  <script src="/treant-js/vendor/raphael.js"></script>
+  <script src="/treant-js/Treant.js"></script>
+  <script src="/javascripts/showData.js"></script>
+  <script>
+    init(<%- JSON.stringify(nodes) %>, <%- JSON.stringify(data) %>);
+  </script>
+</body>
+
+</html>
