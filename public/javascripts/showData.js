@@ -1,8 +1,36 @@
-function makingBOM(nodes) {
+function makingNodeConfig(config, nodes, curKey, parentKey, title) {
+  // 從節點 1 開始往下走子節點
+  // 並且把路過的子節點做成 config
+  config.push({ text: {} });
+  let nextParentKey = config.length - 1;
+  config[nextParentKey]['text']['name'] = nodes[curKey]['name'];
+  config[nextParentKey]['text']['title'] = `(${title})`;
+  // 第一個節點沒有 parent
+  if (curKey != '1') {
+    config[config.length - 1]['parent'] = config[parentKey];
+  }
+  let consist = nodes[curKey][`c-of-${curKey}`];
+  // 如果沒有子元件(表示當前元件為基礎元件)就直接 return
+  if (consist.length == 1 && consist[0] == "0") {
+    return;
+  }
+  for (let i = 0; i < consist.length; i++) {
+    let nextKey = consist[i].substr(0, consist[i].indexOf('('));
+    let title = parseInt(consist[i].substring(consist[i].indexOf('(') + 1, consist[i].indexOf(')')));
+    makingNodeConfig(config, nodes, nextKey, nextParentKey, title);
+  }
+}
+
+function makingBOM(nodes, data) {
   let parentTbl = {};
   let config = [];
   let chart = {
     container: "#bom",
+    rootOrientation: 'NORTH', // NORTH || EAST || WEST || SOUTH
+    nodeAlign: 'CENTER', // CENTER || TOP || BOTTOM
+    levelSeparation: 20,
+    siblingSeparation: 10,
+    subTeeSeparation: 10,
     connectors: {
       type: 'step',
       style: {
@@ -10,64 +38,26 @@ function makingBOM(nodes) {
       }
     },
     node: {
-      HTMLclass: 'node'
+      HTMLclass: 'node',
+
     }
   }
   config.push(chart);
   // 製作其他 node 的 config
   let nodes_Keys = Object.keys(nodes);
-  // 會從 元件 1 開始(索引值 1)
-  for (let i = 0; i < nodes_Keys.length; i++) {
-    config.push({ text: {} });
-    config[i + 1]['text']['name'] = nodes[nodes_Keys[i]]['name'];
-    // 檢查由幾個元件組成
-    if (nodes[nodes_Keys[i]][`q-of-${nodes_Keys[i]}`] != 0) {
-      // 把 c-of- 裡的數字加進去
-      let arr = nodes[nodes_Keys[i]][`c-of-${nodes_Keys[i]}`];
-      let children;
-      for (let k = 0; k < arr.length; k++) {
-        // 先把括號拆掉再加進去
-        children = arr[k].substr(0, arr[k].indexOf('('));
-        if (children in parentTbl) {
-          parentTbl[children].parent.push(nodes_Keys[i]);
-          parentTbl[children].num.push(arr[k].substr(arr[k].indexOf('(')));
-        } else {
-          parentTbl[children] = {};
-          parentTbl[children].parent = [];
-          parentTbl[children].parent.push(nodes_Keys[i]);
-          parentTbl[children].num = [];
-          parentTbl[children].num.push(arr[k].substr(arr[k].indexOf('(')));
-        }
-      }
-    }
-  }
-  // 最後再把節點的 parent 啥的處理一下
-  let each = Object.keys(parentTbl);
-  for (let i = 0; i < each.length; i++) {
-    config[parseInt(each[i])]['parent'] = config[parentTbl[each[i]].parent[0]];
-    config[each[i]]['text']['title'] = parentTbl[each[i]].num[0];
-    // 如果這個節點的 parent > 1
-    if (parentTbl[each[i]].parent.length > 1) {
-      // 新增節點
-      for (let n = 1; n < parentTbl[each[i]].parent.length; n++) {
-        config.push({ text: {} });
-        config[config.length - 1]['text']['name'] = config[each[i]]['text']['name'];
-        config[config.length - 1]['text']['title'] = parentTbl[each[i]].num[n];
-        config[config.length - 1]['parent'] = config[parentTbl[each[i]].parent[n]];
-      }
-    }
-  }
+  console.log(nodes_Keys);
+  makingNodeConfig(config, nodes, '1', '0', parseInt(data['orderNum']));
+  console.log('config', config);
   let bom = new Treant(config);
 }
 
 function showSchedule(timeline) {
-  let scheduleDiv = $('#schedule');
   let html = '';
   $('#schedule').html(html);
-  for(let i = 0; i < timeline.length; i++) {
+  for (let i = 0; i < timeline.length; i++) {
     html = `
-    <div class="timelineBlock pt-2">
-      <h5>週次 ${i+1}</h5>
+    <div class="timelineBlock p-2">
+      <h5>週次 ${i + 1}</h5>
       ${timeline[i]}
     </div>`
     $('#schedule').append(html);
@@ -82,15 +72,15 @@ function tracking(nodes, key, timeline, curDate, orderNum) {
   // 先計算需要多少(需求減去庫存)
   orderNum -= nodes[key][`i-of-${key}`];
   // 如果沒有子元件(表示當前元件為基礎元件)就直接 return
-  if(consist.length == 1 && consist[0] == "0") {
+  if (consist.length == 1 && consist[0] == "0") {
     // 把 timeline 的那天加入"製造元件"的動作
     // 但是基礎元件需要計算一次訂購多少
-    if(orderNum < nodes[key][`ord-num-of-${key}`]) {
+    if (orderNum < nodes[key][`ord-num-of-${key}`]) {
       orderNum = nodes[key][`ord-num-of-${key}`];
-    } else if(orderNum > nodes[key][`ord-num-of-${key}`]) {
+    } else if (orderNum > nodes[key][`ord-num-of-${key}`]) {
       // 計算當前訂購量是否為規定訂購量的倍數
       // 如果不是就把他補上去
-      if(orderNum % nodes[key][`ord-num-of-${key}`] != 0) {
+      if (orderNum % nodes[key][`ord-num-of-${key}`] != 0) {
         orderNum = orderNum - orderNum % nodes[key][`ord-num-of-${key}`] + nodes[key][`ord-num-of-${key}`];
       }
     }
@@ -100,10 +90,10 @@ function tracking(nodes, key, timeline, curDate, orderNum) {
   // 把 timeline 的那天加入"製造元件"的動作
   timeline[curDate] += `開始生產 ${orderNum} 個 ${nodes[key]['name']}<br>`;
   // 跑這個元件的子元件
-  for(let i = 0; i < consist.length; i++) {
+  for (let i = 0; i < consist.length; i++) {
     // 回推當前元件應該開始製造的時間
     let nextKey = consist[i].substr(0, consist[i].indexOf('('));
-    let nextOrderNum = parseInt(consist[i].substring(consist[i].indexOf('(')+1, consist[i].indexOf(')'))) * orderNum;
+    let nextOrderNum = parseInt(consist[i].substring(consist[i].indexOf('(') + 1, consist[i].indexOf(')'))) * orderNum;
     tracking(nodes, nextKey, timeline, curDate, nextOrderNum);
   }
 }
@@ -123,6 +113,6 @@ function schedule(nodes, data) {
 function init(nodes, data) {
   console.log('nodes:', nodes);
   console.log('data:', data);
-  makingBOM(nodes);
+  makingBOM(nodes, data);
   schedule(nodes, data);
 }

@@ -46,4 +46,9 @@ hr {
   background-color: #AD916C;
   border: #323761 solid 2px;
   border-radius: 10px;
+  overflow-y:auto;
+}
+
+svg {
+  overflow: auto!important;
 }
